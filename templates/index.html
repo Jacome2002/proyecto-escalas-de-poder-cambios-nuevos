@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Ball Z - Ki Tracker Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="[suspicious link removed]"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="[suspicious link removed]">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dbzOrange: '#FF6600',
+                        dbzYellow: '#FCD34D',
+                        dbzDark: '#0F172A',
+                        dbzCard: '#1E293B'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dbzDark text-slate-100 min-h-screen font-sans">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900 border-b border-orange-500/30 sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-600 to-amber-400 flex items-center justify-center font-bold text-slate-900 text-xl shadow-lg shadow-orange-500/20">
+                    🐉
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
+                        Dragon Ball Z Ki API
+                    </h1>
+                    <p class="text-xs text-slate-400">Sistema Integrador - Dashboard CRUD CSV</p>
+                </div>
+            </div>
+            
+            <nav class="flex gap-2 bg-slate-800 p-1.5 rounded-xl border border-slate-700">
+                <button onclick="cambiarTab('personajes')" id="tab-personajes" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-orange-500 text-white shadow-md">
+                    <i class="fa-solid fa-users mr-1.5"></i> Personajes
+                </button>
+                <button onclick="cambiarTab('transformaciones')" id="tab-transformaciones" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-bolt mr-1.5"></i> Transformaciones
+                </button>
+                <button onclick="cambiarTab('sagas')" id="tab-sagas" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-book-journal-whills mr-1.5"></i> Sagas
+                </button>
+                <button onclick="cambiarTab('combates')" id="tab-combates" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-burst mr-1.5"></i> Arena Combate
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+
+        <!-- TAB: PERSONAJES -->
+        <section id="sec-personajes" class="tab-content">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-amber-400">Lista de Guerreros Z y Rivales</h2>
+                    <p class="text-sm text-slate-400">Datos obtenidos en tiempo real desde <code>personajes.csv</code></p>
+                </div>
+                <div class="flex gap-3 w-full md:w-auto">
+                    <input type="text" id="input-buscar-nombre" oninput="buscarPorNombre()" placeholder="Buscar por nombre..." class="bg-slate-800 border border-slate-700 text-sm rounded-lg px-4 py-2 text-white focus:outline-none focus:border-orange-500 w-full md:w-64">
+                    <select id="select-raza-filtro" onchange="filtrarPorRaza()" class="bg-slate-800 border border-slate-700 text-sm rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500">
+                        <option value="">Todas las Razas</option>
+                        <option value="Saiyajin">Saiyajin</option>
+                        <option value="Namekiano">Namekiano</option>
+                        <option value="Humano">Humano</option>
+                        <option value="Androide">Androide</option>
+                        <option value="Raza de Freezer">Raza de Freezer</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="grid-personajes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+        <!-- TAB: TRANSFORMACIONES -->
+        <section id="sec-transformaciones" class="tab-content hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-amber-400">Multiplicadores de Transformaciones</h2>
+                <p class="text-sm text-slate-400">Gestionado en <code>transformaciones.csv</code></p>
+            </div>
+            <div id="grid-transformaciones" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+        <!-- TAB: SAGAS -->
+        <section id="sec-sagas" class="tab-content hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-amber-400">Sagas del Universo DBZ</h2>
+                <p class="text-sm text-slate-400">Gestionado en <code>sagas.csv</code></p>
+            </div>
+            <div id="grid-sagas" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+        <!-- TAB: ARENA DE COMBATE -->
+        <section id="sec-combates" class="tab-content hidden">
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-amber-400">Simulador de Combate y Medición de Ki</h2>
+                <p class="text-sm text-slate-400">Evalúa la fuerza efectiva y detecta sobrecarga en el Rastreador (> 21,000 Ki)</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Formulario Combate -->
+                <div class="lg:col-span-5 bg-dbzCard p-6 rounded-2xl border border-slate-700">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-gamepad text-orange-400"></i> Configurar Pelea
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Guerrero Atacante</label>
+                            <select id="select-atacante" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:border-orange-500 focus:outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Multiplicador Atacante (Kaio-ken / SSJ)</label>
+                            <input type="number" id="mult-atacante" value="1.0" min="1.0" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:border-orange-500 focus:outline-none">
+                        </div>
+
+                        <hr class="border-slate-700 my-4">
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Guerrero Defensor</label>
+                            <select id="select-defensor" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:border-orange-500 focus:outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Multiplicador Defensor</label>
+                            <input type="number" id="mult-defensor" value="1.0" min="1.0" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm focus:border-orange-500 focus:outline-none">
+                        </div>
+
+                        <button onclick="simularCombate()" class="w-full mt-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-extrabold py-3 rounded-xl shadow-lg shadow-orange-500/30 transition-all text-sm tracking-wide uppercase">
+                            💥 ¡Iniciar Simulación!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resultado Combate -->
+                <div class="lg:col-span-7 bg-dbzCard p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-amber-400"></i> Lectura del Rastreador
+                        </h3>
+                        <div id="resultado-box" class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center py-12">
+                            <i class="fa-solid fa-radar text-4xl text-slate-600 mb-3 block animate-pulse"></i>
+                            <p class="text-slate-400 text-sm">Selecciona contendientes y presiona "Iniciar Simulación"</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Historial Reciente (combates.csv)</h4>
+                        <div id="lista-combates-historico" class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const API_URL = "";
+
+        // Navegación entre pestañas
+        function cambiarTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('bg-orange-500', 'text-white', 'shadow-md');
+            document.getElementById(`tab-${tab}`).classList.remove('text-slate-400');
+
+            if(tab === 'personajes') cargarPersonajes();
+            if(tab === 'transformaciones') cargarTransformaciones();
+            if(tab === 'sagas') cargarSagas();
+            if(tab === 'combates') { cargarPersonajesParaCombate(); cargarHistoricoCombates(); }
+        }
+
+        // Cargar Personajes
+        async function cargarPersonajes() {
+            try {
+                const res = await fetch(`${API_URL}/personajes?incluir_inactivos=true`);
+                const data = await res.json();
+                renderPersonajes(data);
+            } catch (err) { console.error(err); }
+        }
+
+        function renderPersonajes(lista) {
+            const container = document.getElementById('grid-personajes');
+            container.innerHTML = lista.map(p => `
+                <div class="bg-dbzCard p-5 rounded-2xl border ${p.activo ? 'border-slate-700' : 'border-red-900/40 bg-slate-900/50'} relative overflow-hidden group">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${p.activo ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
+                                ${p.raza}
+                            </span>
+                            <h3 class="text-lg font-bold text-white mt-2">${p.nombre}</h3>
+                        </div>
+                        <span class="text-xs font-mono px-2 py-1 bg-slate-800 text-slate-400 rounded">ID: ${p.id}</span>
+                    </div>
+
+                    <div class="my-4 bg-slate-900/80 p-3 rounded-xl flex justify-between items-center border border-slate-800">
+                        <span class="text-xs text-slate-400">Ki Base</span>
+                        <span class="text-xl font-extrabold text-amber-400 font-mono">${p.ki_base.toLocaleString()}</span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs text-slate-400">
+                        <span>Saga ID: ${p.saga_id}</span>
+                        <span>Estado: <strong class="${p.activo ? 'text-emerald-400' : 'text-red-400'}">${p.activo ? 'Activo' : 'Inactivo (Lógico)'}</strong></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function buscarPorNombre() {
+            const nombre = document.getElementById('input-buscar-nombre').value.trim();
+            if(!nombre) return cargarPersonajes();
+            try {
+                const res = await fetch(`${API_URL}/personajes/buscar/${nombre}`);
+                if(res.ok) {
+                    const data = await res.json();
+                    renderPersonajes([data]);
+                } else {
+                    document.getElementById('grid-personajes').innerHTML = `<p class="text-slate-400 text-sm col-span-3 text-center py-8">No se encontró personaje llamado '${nombre}'</p>`;
+                }
+            } catch(e) {}
+        }
+
+        async function filtrarPorRaza() {
+            const raza = document.getElementById('select-raza-filtro').value;
+            if(!raza) return cargarPersonajes();
+            const res = await fetch(`${API_URL}/personajes/filtrar/?raza=${raza}`);
+            const data = await res.json();
+            renderPersonajes(data);
+        }
+
+        // Cargar Transformaciones
+        async function cargarTransformaciones() {
+            const res = await fetch(`${API_URL}/transformaciones`);
+            const data = await res.json();
+            document.getElementById('grid-transformaciones').innerHTML = data.map(t => `
+                <div class="bg-dbzCard p-5 rounded-2xl border border-slate-700">
+                    <span class="text-xs font-mono text-slate-400">ID: ${t.id}</span>
+                    <h3 class="text-lg font-bold text-white mt-1">${t.nombre}</h3>
+                    <div class="mt-4 bg-slate-900 p-3 rounded-xl flex justify-between items-center">
+                        <span class="text-xs text-slate-400">Multiplicador</span>
+                        <span class="text-lg font-extrabold text-orange-400 font-mono">x${t.multiplicador_ki}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Cargar Sagas
+        async function cargarSagas() {
+            const res = await fetch(`${API_URL}/sagas`);
+            const data = await res.json();
+            document.getElementById('grid-sagas').innerHTML = data.map(s => `
+                <div class="bg-dbzCard p-5 rounded-2xl border border-slate-700">
+                    <span class="text-xs font-mono text-amber-400 font-bold">Orden: #${s.orden_cronologico}</span>
+                    <h3 class="text-lg font-bold text-white mt-1">${s.nombre}</h3>
+                    <span class="text-xs text-slate-400 mt-2 block">ID Interno: ${s.id}</span>
+                </div>
+            `).join('');
+        }
+
+        // Cargar Selects de Combate
+        async function cargarPersonajesParaCombate() {
+            const res = await fetch(`${API_URL}/personajes`);
+            const data = await res.json();
+            const options = data.map(p => `<option value="${p.id}">${p.nombre} (${p.ki_base.toLocaleString()} Ki)</option>`).join('');
+            document.getElementById('select-atacante').innerHTML = options;
+            document.getElementById('select-defensor').innerHTML = options;
+            if(data.length > 1) document.getElementById('select-defensor').selectedIndex = 1;
+        }
+
+        // Simular Combate (POST /combates)
+        async function simularCombate() {
+            const atacanteId = parseInt(document.getElementById('select-atacante').value);
+            const defensorId = parseInt(document.getElementById('select-defensor').value);
+            const multAtacante = parseFloat(document.getElementById('mult-atacante').value);
+            const multDefensor = parseFloat(document.getElementById('mult-defensor').value);
+
+            try {
+                const res = await fetch(`${API_URL}/combates`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        personaje_atacante_id: atacanteId,
+                        multiplicador_atacante: multAtacante,
+                        personaje_defensor_id: defensorId,
+                        multiplicador_defensor: multDefensor
+                    })
+                });
+
+                const data = await res.json();
+                const box = document.getElementById('resultado-box');
+
+                box.className = `p-6 rounded-xl border ${data.rastreador_explota ? 'bg-red-950/40 border-red-600' : 'bg-slate-900 border-emerald-500/40'} text-center`;
+                box.innerHTML = `
+                    <div class="inline-block p-3 rounded-full ${data.rastreador_explota ? 'bg-red-500/20 text-red-500' : 'bg-emerald-500/20 text-emerald-400'} mb-3">
+                        <i class="fa-solid ${data.rastreador_explota ? 'fa-explosion text-3xl' : 'fa-trophy text-2xl'}"></i>
+                    </div>
+                    <h4 class="text-xl font-black text-white">¡Ganador: ${data.ganador_nombre}!</h4>
+                    <p class="text-sm text-slate-300 my-2">${data.mensaje_combate}</p>
+                    <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-800 text-xs font-mono">
+                        <div><span class="text-slate-400">Ki Atacante:</span> <span class="text-amber-400 font-bold">${data.ki_efectivo_atacante.toLocaleString()}</span></div>
+                        <div><span class="text-slate-400">Ki Defensor:</span> <span class="text-amber-400 font-bold">${data.ki_efectivo_defensor.toLocaleString()}</span></div>
+                    </div>
+                `;
+
+                cargarHistoricoCombates();
+            } catch(e) { console.error(e); }
+        }
+
+        async function cargarHistoricoCombates() {
+            const res = await fetch(`${API_URL}/combates`);
+            const data = await res.json();
+            document.getElementById('lista-combates-historico').innerHTML = data.map(c => `
+                <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-xs flex justify-between items-center">
+                    <div>
+                        <span class="text-white font-bold">${c.ganador_nombre}</span> 
+                        <span class="text-slate-400">ganó (+${c.diferencia_ki.toLocaleString()} Ki)</span>
+                    </div>
+                    ${c.rastreador_explota ? '<span class="text-red-400 text-[10px] bg-red-950 px-2 py-0.5 rounded border border-red-800">💥 Rastreador explotó</span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // Carga inicial
+        cargarPersonajes();
+    </script>
+</body>
+</html>
