@@ -4,6 +4,13 @@ from fastapi.responses import HTMLResponse
 from database import inicializar_csv
 from routers import sagas, transformaciones, personajes, combates
 
+from fastapi.staticfiles import StaticFiles
+from templating import BASE_DIR
+
+app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+
+
+
 app = FastAPI(
     title="Dragon Ball Z Ki API - CRUD CSV Completo",
     description="API RESTful con interfaz gráfica visual para gestión de Ki y combates",

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }} . {{ app_name }}</title>
+</head>
+<body>
+    {% block content %}
+        <h1>{{ title }} en {{ app_name }}</h1>
+        
+        <!-- Filtro length de Jinja2 para mostrar el total de registros -->
+        <p>Total de guerreros registrados en el rastreador: ({{ personajes | length }})</p>
+
+        <hr>
+
+        <!-- Ciclo for para recorrer cada objeto Personaje que viene de la BD -->
+        {% for personaje in personajes %}
+            <p>
+                <strong>ID:</strong> {{ personaje.id }} | 
+                <strong>Nombre:</strong> {{ personaje.nombre }} | 
+                <strong>Raza:</strong> {{ personaje.raza }} | 
+                <strong>Ki Base:</strong> {{ personaje.nivel_ki }}
+            </p>
+        {% endfor %}
+
+        <hr>
+        <a href="/">⬅ Volver al Inicio</a>
+    {% endblock %}
+</body>
+</html>
